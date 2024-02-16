@@ -1,7 +1,20 @@
 import sys
 import os
+import json
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QListWidget, QMessageBox
-from task_listener import load_tasks_from_json, save_tasks_to_json
+
+# Funktionen zum Laden und Speichern von Aufgaben in einer JSON-Datei
+def load_tasks_from_json(json_file_path):
+    try:
+        with open(json_file_path, "r") as json_file:
+            tasks = json.load(json_file)
+            return tasks
+    except FileNotFoundError:
+        return []
+
+def save_tasks_to_json(tasks, json_file_path):
+    with open(json_file_path, "w") as json_file:
+        json.dump(tasks, json_file)
 
 class ToDoApp(QWidget):
     def __init__(self):
@@ -24,12 +37,24 @@ class ToDoApp(QWidget):
         self.add_button.clicked.connect(self.add_task)
         self.delete_button.clicked.connect(self.del_selected_task)
         
-
-        json_folder_path = os.path.join(os.path.dirname(__file__), "data")
-        json_file_path = os.path.join(os.path.dirname(__file__), "task_list.json")
+        # Absoluter Pfad zur JSON-Datei im Unterordner "data"
+        base_folder_path = os.getcwd()
+        data_folder_path = os.path.join(base_folder_path, "data")
+        self.json_file_path = os.path.join(data_folder_path, "tasks_archive.json")
         
-        if not self.load_tasks_from_json(json_file_path):
-            QMessageBox.critical(self, "Fehler", "Die Datei task_list.json wurde nicht gefunden!")
+        # Überprüfen, ob der Datenordner existiert, andernfalls erstellen
+        if not os.path.exists(data_folder_path):
+            os.makedirs(data_folder_path)
+        
+        # Überprüfen, ob die JSON-Datei existiert, andernfalls eine leere Liste initialisieren
+        if not os.path.exists(self.json_file_path):
+            self.tasks = []
+        else:
+            # Laden der Aufgaben aus der JSON-Datei
+            self.tasks = load_tasks_from_json(self.json_file_path)
+            # Anzeigen der geladenen Aufgaben in der Liste
+            for task in self.tasks:
+                self.task_list.addItem(task["title"])
 
         self.setLayout(self.layout)
 
@@ -39,25 +64,19 @@ class ToDoApp(QWidget):
             self.tasks.append({"title": task, "status": "In Work"})
             self.task_list.addItem(task)
             self.input_field.clear()
-            self.save_tasks_to_json()
+            self.save_tasks_to_json()  # Speichern Sie die Aufgaben in der JSON-Datei
 
     def del_selected_task(self):
         selected_items = self.task_list.selectedItems()
         if selected_items:
             for item in selected_items:
                 index = self.task_list.row(item)
-                del self.tasks[index]
+                self.tasks[index]["status"] = "Done"
                 self.task_list.takeItem(index)
-            self.save_tasks_to_json(json_file_path)
-
-    def load_tasks_from_json(self, json_file_path):
-        self.tasks = load_tasks_from_json(json_file_path)
-        for task in self.tasks:
-            self.task_list.addItem(task["title"])
-        return bool(self.tasks)
+            self.save_tasks_to_json()  # Speichern Sie die Aufgaben in der JSON-Datei
 
     def save_tasks_to_json(self):
-        save_tasks_to_json(self.tasks, json_file_path)
+        save_tasks_to_json(self.tasks, self.json_file_path)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

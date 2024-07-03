@@ -1,5 +1,6 @@
 # class/todo_app.py
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QPushButton, QListWidget, QMainWindow
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QListWidget, QMainWindow
+from PyQt6.QtCore import Qt
 from task_listener import load_tasks_from_json, save_tasks_to_json
 from datetime import datetime
 from .list_window import ListWindow
@@ -16,17 +17,27 @@ class ToDoApp(QMainWindow):
         self.layout = QVBoxLayout(self.central_widget)
 
         self.input_field = QLineEdit()
+        
         self.add_task_button = QPushButton("Add Task")
+        self.add_task_button.setObjectName("TaskButton")
+
         self.add_list_button = QPushButton("Add List")
-        self.delete_button = QPushButton("Delete Task")
+        self.add_list_button.setObjectName("addListButton")
+
+        self.delete_button = QPushButton("Delete Button")
+        self.delete_button.setObjectName("deleteButton")
+
         self.task_list = QListWidget()
         
         self.layout.addWidget(self.task_list)
         self.layout.addWidget(self.input_field)
-        self.layout.addWidget(self.add_task_button)
-        self.layout.addWidget(self.add_list_button)
-        self.layout.addWidget(self.delete_button)
+
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(self.add_task_button)
+        button_layout.addWidget(self.add_list_button)
+        button_layout.addWidget(self.delete_button)
         
+        self.layout.addLayout(button_layout)
         
         self.add_task_button.clicked.connect(self.add_task)
         self.add_list_button.clicked.connect(self.add_list)

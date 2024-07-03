@@ -1,0 +1,71 @@
+QWidget {
+    font-family: Arial;
+    font-size: 14px;
+}
+QPushButton {
+    background-color: #3f3f3f;
+    color: white;
+    border: none;
+    font-size: 14px bold;
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+
+
+QLineEdit {
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 14px;
+    padding: 5px;
+}
+QListWidget {
+    border: 1px solid #ccc;
+}
+QLabel {
+    font-size: 18px;
+    font-weight: bold;
+}
+QListWidget {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+/* Spezifische Stile für ToDoApp-Buttons */
+#TaskButton {
+    background-color: #4CAF50;
+}
+#TaskButton:hover {
+    background-color: #2f6e31;
+}
+
+#addListButton {
+    background-color: #FF9800;
+}
+#addListButton:hover {
+    background-color: #975b00;
+}
+
+#deleteButton {
+    background-color: #ff0000;
+}
+
+#deleteButton:hover {
+    background-color: #770000;
+}
+
+/* Spezifische Stile für ListWindow-Buttons */
+#addSubtaskbutton {
+    background-color: #4CAF50;
+}
+#addSubtaskbutton:hover {
+    background-color: #2f6e31;
+}
+
+#deleteSubtaskbutton {
+    background-color: #ff0000;
+}
+#deleteSubtaskbutton:hover {
+    background-color: #770000;
+}
+

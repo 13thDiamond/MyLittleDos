@@ -1,5 +1,5 @@
 # class/list_window.py
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QPushButton, QListWidget
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QListWidget
 from datetime import datetime
 from task_listener import save_tasks_to_json
 
@@ -15,13 +15,23 @@ class ListWindow(QWidget):
 
         self.input_field = QLineEdit()
         self.add_subtask_button = QPushButton("Add Subtask")
+        self.add_subtask_button.setObjectName("addSubtaskbutton")
+
         self.del_subtask_button = QPushButton("Delete Subtask")
+        self.del_subtask_button.setObjectName("deleteSubtaskbutton")
+
+
         self.subtask_list = QListWidget()
 
         self.layout.addWidget(self.subtask_list)
         self.layout.addWidget(self.input_field)
-        self.layout.addWidget(self.add_subtask_button)
-        self.layout.addWidget(self.del_subtask_button)
+
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(self.add_subtask_button)
+        button_layout.addStretch()
+        button_layout.addWidget(self.del_subtask_button)
+
+        self.layout.addLayout(button_layout)
 
         self.add_subtask_button.clicked.connect(self.add_subtask)
         self.del_subtask_button.clicked.connect(self.del_subtask)

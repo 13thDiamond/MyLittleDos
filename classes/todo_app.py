@@ -1,8 +1,7 @@
 # class/todo_app.py
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QListWidget, QMainWindow
 from PyQt6.QtCore import Qt
-from task_listener import load_tasks_from_json, save_tasks_to_json
-from datetime import datetime
+from handler.task__handler import load_tasks, save_tasks, add_task ,add_list, delete_task, update_task_list, reorder_tasks
 from .list_window import ListWindow
 
 class ToDoApp(QMainWindow):
@@ -44,58 +43,38 @@ class ToDoApp(QMainWindow):
         self.delete_button.clicked.connect(self.del_selected_task)
         self.task_list.itemDoubleClicked.connect(self.open_list)
 
-        self.tasks = load_tasks_from_json()
+        self.tasks = load_tasks()
         self.update_task_list()
 
     def add_task(self):
         task_title = self.input_field.text()
-        if task_title:
-            new_task = {
-                "title": task_title,
-                "status": "In Work",
-                "type": "task",
-                "timestamp": datetime.now().isoformat(),
-                "closed_at": None
-            }
-            self.tasks.append(new_task)
-            self.update_task_list()
-            self.input_field.clear()
-            save_tasks_to_json(self.tasks)
+        add_task(self.tasks, task_title)
+        self.update_task_list()      
+        self.input_field.clear()
 
     def add_list(self):
         list_title = self.input_field.text()
-        if list_title:
-            new_list = {
-                "title": list_title,
-                "status": "In Work",
-                "type": "list",
-                "timestamp": datetime.now().isoformat(),
-                "closed_at": None,
-                "items": []
-            }
-            self.tasks.append(new_list)
-            self.update_task_list()
-            self.input_field.clear()
-            save_tasks_to_json(self.tasks)
+        add_list(self.tasks, list_title)
+        self.update_task_list()
+        self.input_field.clear()
 
     def del_selected_task(self):
         selected_items = self.task_list.selectedItems()
         if selected_items:
             for item in selected_items:
                 index = self.task_list.row(item)
-                self.tasks[index]["status"] = "Done"
-                self.tasks[index]["closed_at"] = datetime.now().isoformat()
-                self.task_list.takeItem(index)
-            save_tasks_to_json(self.tasks)
+                delete_task(self.tasks, index)
+                self.update_task_list()
  
     def open_list(self, item):
         index = self.task_list.row(item)
-        if self.tasks[index]["type"] == "list":
+        if self.tasks[index]["type"] == "list" and self.tasks[index]["status"] == "In Work":
             self.list_window = ListWindow(self.tasks[index], self.tasks)
             self.list_window.show()
 
     def update_task_list(self):
         self.task_list.clear()
+        self.tasks = load_tasks()
         for task in self.tasks:
-            if task["status"] == "In Work":
-                self.task_list.addItem(task["title"])
+            self.task_list.addItem(task["title"])
+        self.task_list.update()

@@ -1,7 +1,7 @@
 # class/todo_app.py
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QListWidget, QMainWindow
 from PyQt6.QtCore import Qt
-from handler.task__handler import load_tasks, save_tasks, add_task ,add_list, delete_task, update_task_list, reorder_tasks
+from handler.task__handler import load_tasks, save_tasks, add_task ,add_list, delete_task, update_task_list, reorder_tasks, cleanup_old_tasks
 from .list_window import ListWindow
 
 class ToDoApp(QMainWindow):
@@ -43,6 +43,7 @@ class ToDoApp(QMainWindow):
         self.delete_button.clicked.connect(self.del_selected_task)
         self.task_list.itemDoubleClicked.connect(self.open_list)
 
+        cleanup_old_tasks()
         self.tasks = load_tasks()
         self.update_task_list()
 
@@ -64,7 +65,7 @@ class ToDoApp(QMainWindow):
             for item in selected_items:
                 index = self.task_list.row(item)
                 delete_task(self.tasks, index)
-                self.update_task_list()
+            self.update_task_list()
  
     def open_list(self, item):
         index = self.task_list.row(item)
@@ -74,7 +75,7 @@ class ToDoApp(QMainWindow):
 
     def update_task_list(self):
         self.task_list.clear()
-        self.tasks = load_tasks()
-        for task in self.tasks:
+        updated_tasks = update_task_list(self.tasks)
+        for task in updated_tasks:
             self.task_list.addItem(task["title"])
         self.task_list.update()

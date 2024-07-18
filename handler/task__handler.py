@@ -3,6 +3,7 @@ from task_listener import load_tasks_from_json, save_tasks_to_json
 
 def load_tasks():
     tasks = load_tasks_from_json()
+    tasks = remove_old_done_tasks(tasks)
     return tasks
 
 def save_tasks(tasks):

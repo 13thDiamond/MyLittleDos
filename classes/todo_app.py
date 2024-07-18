@@ -1,7 +1,7 @@
 # class/todo_app.py
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QListWidget, QMainWindow
 from PyQt6.QtCore import Qt
-from handler.task__handler import load_tasks, save_tasks, add_task ,add_list, delete_task, update_task_list, reorder_tasks, cleanup_old_tasks
+from handler.task__handler import load_tasks, save_tasks, add_task ,add_list, delete_task, reorder_tasks, update_task_list, cleanup_old_tasks
 from .list_window import ListWindow
 
 class ToDoApp(QMainWindow):

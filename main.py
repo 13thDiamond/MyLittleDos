@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QApplication
 from classes.todo_app import ToDoApp
 
 def load_stylesheet(main_style):
-    with open("D:\\Spielewiese\\GitHub\\MyLittleDos\\stylesmap\\main_style.qss", "r") as file:
+    with open(main_style, "r") as file:
         main_style = file.read()
     return main_style
 

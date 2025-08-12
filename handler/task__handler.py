@@ -38,6 +38,7 @@ def delete_task(tasks, index):
     tasks[index]["status"]="Done"
     tasks[index]["closed_at"]=datetime.now().isoformat()
     save_tasks(tasks)
+    reorder_task(tasks)
 
 def reorder_tasks(tasks):
     tasks.sort(key=lambda task: (task["status"] == "Done", task["timestamp"]))

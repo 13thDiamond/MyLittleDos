@@ -163,4 +163,5 @@ cython_debug/
 .gitmessage.txt
 
 # Genarated Storagedata not relevant for commit!!!
+data/
 tasks_archive.json

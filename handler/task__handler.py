@@ -33,6 +33,8 @@ def add_list(tasks, list_title):
         }
         tasks.append(new_list)
         save_tasks(tasks)
+        update_task_list(tasks)
+        reorder_tasks(tasks)
 
 def delete_task(tasks, index):
     tasks[index]["status"]="Done"

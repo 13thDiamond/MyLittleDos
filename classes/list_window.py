@@ -56,11 +56,12 @@ class ListWindow(QWidget):
     def del_subtask(self):
         selected_items = self.subtask_list.selectedItems()
         if selected_items:
-            for item in selected_items:
-                index = self.subtask_list.row(item)
-                self.list_item["items"][index]["status"] = "Done"
-                self.list_item["items"][index]["closed_at"] = datetime.now().isoformat()
-                self.subtask_list.takeItem(index)
+            selected_titles = [item.text() for item in selected_items]
+            for subtask in self.list_item["items"]:
+                if subtask["title"] in selected_titles and subtask["status"] == "In Work":
+                    subtask["status"] = "Done"
+                    subtask["closed_at"] = datetime.now().isoformat()
+            self.update_subtask_list()
             save_tasks_to_json(self.parent_tasks)
 
     def update_subtask_list(self):

@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
           ref: core
       - name: Get next version
-        uses: thenativeweb/get-next-version@core
+        uses: thenativeweb/get-next-version@main
         id: get_next_version
 
   build:

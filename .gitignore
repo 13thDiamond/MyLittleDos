@@ -165,3 +165,6 @@ cython_debug/
 # Genarated Storagedata not relevant for commit!!!
 data/
 tasks_archive.json
+
+# meta files
+.DS_Store

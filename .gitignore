@@ -169,5 +169,3 @@ tasks_archive.json
 # meta files
 .DS_Store
 
-# workflow files
-workflows

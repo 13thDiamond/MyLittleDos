@@ -1,0 +1,155 @@
+name: Release
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+jobs:
+  version-check:
+    name: Check Version
+    runs-on: ubuntu-latest
+    outputs:
+      next_version: ${{ steps.get_next_version.outputs.version }}
+      has_next_version: ${{ steps.get_next_version.outputs.hasNextVersion }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: main
+      - name: Get next version
+        uses: thenativeweb/get-next-version@main
+        id: get_next_version
+
+  build:
+    name: Build Executables
+    needs: version-check
+    if: ${{ needs.version-check.outputs.has_next_version == 'true' }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            add_data_images: "icon:icon"
+            add_data_styles: "stylesmap:stylesmap"
+            add_data_data: "data:data"
+            exe: MyLittleDos
+            app_name: "MyLittleDos-linux"
+            build_flags: "--onefile --windowed --icon icons/icon_linux.ico"
+          - os: windows-latest
+            add_data_images: "icons;icons"
+            add_data_styles: "stylesmap;stylesmap"
+            add_data_data: "data;data"
+            exe: MyLittleDos.exe
+            app_name: "MyLittleDos-windows.exe"
+            build_flags: "--onefile --windowed --icon icons/icon.png"
+          - os: macos-latest
+            add_data_images: "icons:icons"
+            add_data_styles: "stylesmap:stylesmap"
+            add_data_data: "data:data"
+            exe: MyLittleDos.app
+            app_name: "MyLittleDos-macos.app.zip"
+            build_flags: "--onedir --windowed --icon icons/icon_mos.icns"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Create data directory if missing
+        run: |
+          python -c "
+          import os
+          os.makedirs('data', exist_ok=True)
+          if not os.path.exists('data/tasks_archive.json'):
+              with open('data/tasks_archive.json', 'w') as f:
+                  f.write('[]')
+          print('Data directory contents:')
+          print(os.listdir('data'))
+          "
+      - name: Build executable
+        run: |
+          pyinstaller ${{ matrix.build_flags }} --add-data "${{ matrix.add_data_images }}" --add-data "${{ matrix.add_data_styles }}" --add-data "${{ matrix.add_data_data }}" --name "MyLittleDos" main.py
+      - name: Package macOS .app (only on macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd dist
+          zip -r MyLittleDos-macos.app.zip MyLittleDos.app
+          cd ..
+      - name: Package Linux artifacts
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd dist
+          tar -czf MyLittleDos-linux.tar.gz MyLittleDos
+          cd ..
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyLittleDos-${{ needs.version-check.outputs.next_version }}-${{ matrix.os }}
+          path: |
+            dist/${{ matrix.exe }}
+            dist/MyLittleDos/
+            dist/MyLittleDos-macos.app.zip
+            dist/MyLittleDos-linux.tar.gz
+
+  release:
+    name: Create Release
+    needs: [version-check, build]
+    if: ${{ needs.version-check.outputs.has_next_version == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: main
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+      - name: Create New Release
+        run: |
+          NEXT_VERSION=${{ needs.version-check.outputs.next_version }}
+          git tag $NEXT_VERSION
+          git push origin $NEXT_VERSION
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.version-check.outputs.next_version }}
+          release_name: Release ${{ needs.version-check.outputs.next_version }}
+          draft: false
+          prerelease: false
+      - name: Upload Linux executable
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./MyLittleDos-${{ needs.version-check.outputs.next_version }}-ubuntu-latest/MyLittleDos-linux.tar.gz
+          asset_name: MyLittleDos-linux.tar.gz
+          asset_content_type: application/gzip
+      - name: Upload Windows executable
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./MyLittleDos-${{ needs.version-check.outputs.next_version }}-windows-latest/MyLittleDos.exe
+          asset_name: MyLittleDos-windows.exe
+          asset_content_type: application/octet-stream
+      - name: Upload macOS app bundle (zipped)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./MyLittleDos-${{ needs.version-check.outputs.next_version }}-macos-latest/MyLittleDos-macos.app.zip
+          asset_name: MyLittleDos-macos.app.zip
+          asset_content_type: application/zip

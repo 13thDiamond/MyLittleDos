@@ -30,15 +30,15 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            add_data_images: "icon:icon"
+            add_data_images: "icons:icons"
             add_data_styles: "stylesmap:stylesmap"
             add_data_data: "data:data"
             exe: MyLittleDos
             app_name: "MyLittleDos-linux"
             build_flags: "--onefile --windowed --icon icons/icon_linux.ico"
           - os: windows-latest
-            add_data_images: "icons;icons"
-            add_data_styles: "stylesmap;stylesmap"
+            add_data_images: "icons:icons"
+            add_data_styles: "stylesmap:stylesmap"
             add_data_data: "data;data"
             exe: MyLittleDos.exe
             app_name: "MyLittleDos-windows.exe"

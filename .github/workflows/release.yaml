@@ -42,7 +42,7 @@ jobs:
             add_data_data: "data;data"
             exe: MyLittleDos.exe
             app_name: "MyLittleDos-windows.exe"
-            build_flags: "--onefile --windowed --icon icons/icon.png"
+            build_flags: "--onefile --windowed --icon icons/icon_linux.ico"
           - os: macos-latest
             add_data_images: "icons:icons"
             add_data_styles: "stylesmap:stylesmap"
